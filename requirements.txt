@@ -1,0 +1,6 @@
+gunicorn==0.13.4
+Flask==0.8
+psycopg2==2.4.2
+SQLAlchemy==0.7.3
+redis==2.4.10
+pygeoip==0.2.2

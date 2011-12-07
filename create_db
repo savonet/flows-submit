@@ -1,0 +1,34 @@
+CREATE TABLE users (
+id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+user TEXT,
+password TEXT,
+email TEXT,
+alive BOOL,
+last_seen DATETIME,
+last_ip TEXT
+);
+
+CREATE TABLE radios (
+id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+user_id INTEGER,
+name TEXT,
+website TEXT,
+description TEXT,
+genre TEXT,
+last_seen DATETIME,
+latitude FLOAT,
+longitude FLOAT
+);
+
+CREATE TABLE metadatas (
+radio_id INTEGER,
+artist TEXT,
+title TEXT
+);
+
+CREATE TABLE streams (
+radio_id INTEGER,
+format TEXT,
+url TEXT,
+msg TEXT
+);

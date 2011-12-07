@@ -1,0 +1,26 @@
+A quick list of the difference requests.
+
+* Parameters common to each request:
+  + cmd (string): Command name
+  + user (string)
+  + password (string): for now passowrd are in clear.
+  + radio (string): for now using the radio name. Later, we think 
+                    of a token given for all further requests..
+Per-command parameters:
+* add radio:
+  + radio_website (string)
+  + radio_description (string)
+  + radio_genre (string
+* ping radio: none
+* clear streams: none
+* add stream: 
+  + stream_url (string)
+  + stream_rate (int) // TODO (toots): I think this should be a free string 
+                      // like stream_params, which contains quality or bitrate, 
+                      // but also sample rate, channels etc..)
+  + stream_format (string)
+* metadata:
+  + m_artist (string)
+  + m_title (string)
+  // Note (toots): I think that album, genre etc.. are not so important
+  // at least for now..
