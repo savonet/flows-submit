@@ -137,7 +137,7 @@ def metadata(id, artist, title):
   test(title)
 
   if title == None or title == "":
-    sys.stderr.write("Metadata with empty title!")
+    sys.stderr.write("Metadata with empty title!\n")
     raise Exception("Metadata with empty title!")
 
   model.radios.update(model.radios.c.id == id).execute(artist=artist, title=title)
