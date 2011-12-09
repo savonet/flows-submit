@@ -59,11 +59,9 @@ def user_pass(uid):
 
 def update_user(uid, user, password, email, ip):
   if user == None or user == "":
-    sys.stderr.write("Empty user name!\n")
     raise Exception("Empty user name!")
 
   if password == None or password == "":
-    sys.stderr.write("Empty password!\n")
     raise Exception("Empty password!")
 
   u = model.users.update(model.users.c.id == uid)
@@ -72,20 +70,32 @@ def update_user(uid, user, password, email, ip):
   u.execute(user=user, password=password, last_seen=datetime.today(), last_ip=ip)
 
 def radio_id(uid, radio, create=False):
+  if radio == None or radio == "":
+    raise Exception("Radio name is empty!")
+  
   row = model.radios.select((model.radios.c.user_id == uid) & (model.radios.c.name == radio)).execute().fetchone()
   if row == None:
     if not create:
-      sys.stderr.write("Error: radio id does not exist while not creating it!\n")
       raise Exception("Radio id does not exist!")
     test(radio)
 
-    model.radios.insert().execute(user_id=uid, name=radio, title=radio)
+    # Generate a new token
+    token = os.urandom(20).encode("hex")
+
+    model.radios.insert().execute(user_id=uid, name=radio, title=radio, token=token)
     id = radio_id(uid, radio)
     publish('add_radio', { "id": id })
     return id
   else:
     id = row[model.radios.c.id]
     return id
+
+def radio_token(id):
+  row = model.radios.select((model.radios.c.id == id)).execute().fetchone()
+  if row == None:
+    raise Exception("Radio id does not exist!")
+  
+  return row[model.radios.c.token]
 
 def touch_radio(id):
   model.radios.update(model.radios.c.id == id).execute(last_seen=datetime.today())
@@ -96,7 +106,6 @@ def update_radio(id, name, website, description, genre, ip=None):
   test(genre)
 
   if name == None or name == "":
-    sys.stderr.write("Radio with empty name!\n")
     raise Exception("Radio with empty name!")
 
   model.radios.update(model.radios.c.id == id).execute(name=name, website=website, description=description, genre=genre, last_seen=datetime.today())
@@ -121,11 +130,9 @@ def add_stream(id, url, format, msg):
   test(msg)
 
   if url == None or url == "":
-    sys.stderr.write("Empty url!\n")
     raise Exception("Empty url!")
  
   if format == None or format == "":
-    sys.stderr.write("Empty format!\n")
     raise Exception("Empty format!")
 
   model.streams.insert().execute(radio_id=id, url=url, format=format, msg=msg)
@@ -137,7 +144,6 @@ def metadata(id, artist, title):
   test(title)
 
   if title == None or title == "":
-    sys.stderr.write("Metadata with empty title!\n")
     raise Exception("Metadata with empty title!")
 
   model.radios.update(model.radios.c.id == id).execute(artist=artist, title=title)
@@ -188,6 +194,8 @@ def main():
     if g.cmd== "add radio":
       id = radio_id(uid, radio, create=True)
       update_radio(id, name=radio, website=q("radio_website"), description=q("radio_description"), genre=q("radio_genre"), ip=g.ip)
+      response.data = "Flows-Radio-Token: " + radio_token(id)
+      return response
     elif g.cmd== "ping radio":
       id = radio_id(uid, radio)
       touch_radio(id)
@@ -206,6 +214,7 @@ def main():
       return error (response, "Unknown command "+g.cmd+".")
 
   except:
+    sys.stderr.write("Error: " + str(sys.exc_info()[1]) + "\n")
     return error(response, str(sys.exc_info()[1]))
 
   response.data = "DONE!"

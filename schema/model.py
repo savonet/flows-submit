@@ -1,10 +1,11 @@
 from sqlalchemy import *
+from schema.types import Token, NonEmptyConstraint
 meta = MetaData()
 
 users = Table('users', meta,
     Column('id', Integer, primary_key=True, nullable=False),
-    Column('user', Text, unique=True, nullable=False),
-    Column('password', Text, nullable=False),
+    Column('user', Text, NonEmptyConstraint('user'), unique=True, nullable=False),
+    Column('password', Text, NonEmptyConstraint('password'), nullable=False),
     Column('email', Text),
     Column('alive', Text),
     Column('last_seen', DateTime),
@@ -14,7 +15,8 @@ users = Table('users', meta,
 radios = Table('radios', meta,
     Column('id', Integer, primary_key=True, nullable=False),
     Column('user_id', Integer, ForeignKey(users.c.id), nullable=False),
-    Column('name', Text, unique=True, nullable=False),
+    Column('name', Text, NonEmptyConstraint('name'), unique=True, nullable=False),
+    Column('token', Token, NonEmptyConstraint('token'), unique=True, nullable=False),
     Column('website', Text),
     Column('description', Text),
     Column('genre', Text),
@@ -22,12 +24,12 @@ radios = Table('radios', meta,
     Column('longitude', Float),
     Column('latitude', Float),
     Column('artist', Text),
-    Column('title', Text, nullable=False),
+    Column('title', Text, NonEmptyConstraint('title'), nullable=False),
 )
 
 streams = Table('streams', meta,
     Column('radio_id', Integer, ForeignKey(radios.c.id), nullable=False),
-    Column('format', Text, nullable=False),
-    Column('url', Text, nullable=False),
+    Column('format', Text, NonEmptyConstraint('format'), nullable=False),
+    Column('url', Text, NonEmptyConstraint('url'), nullable=False),
     Column('msg', Text),
 )
