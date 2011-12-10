@@ -28,6 +28,7 @@ users = Table('users', meta,
 )
 
 streams = Table('streams', meta,
+    Column('id', Integer, primary_key=True, nullable=False),
     Column('radio_id', Integer),
     Column('format', Text, nullable=False),
     Column('url', Text, nullable=False),
