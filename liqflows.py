@@ -52,7 +52,6 @@ def main():
   g.ip = request.remote_addr
   g.version = q("v") # Protocol version
   g.cmd= q("cmd")   # Command
-  if g.cmd== None: g.cmd=""
 
   response = app.make_response("")
 
@@ -60,19 +59,21 @@ def main():
   response.headers.add("Content-type", "text/plain")
 
   # Run command
- 
-  username = q("user")
-  user     = g.session.query(User).filter(User.user==username).first() 
-  password = q("password")
-  radio    = g.session.query(Radio).filter(Radio.name==q("radio")).first()
 
   try:
+    username = q("user")
+    
+    if username == None:
+      raise Exception("No user given!")
+
+    user     = g.session.query(User).filter(User.user==username).first()
+    password = q("password")
+    radio    = g.session.query(Radio).filter(Radio.name==q("radio")).first()
+    
     if radio == None:
-      # add radio on an existing radio should work
-      # if radio belongs to the user.
       if g.cmd== "add radio": 
         if user == None:
-          user  = User(user=username, password=password)
+          user  = User(user=username, password=hashlib.sha224(password).hexdigest())
           g.session.add(user)
 
         name = q("radio")
@@ -80,9 +81,6 @@ def main():
         g.session.add(radio)
 
       else: raise Exception("Radio does not exist!")
-
-    if user == None:
-      raise Exception("No user given!")
 
     if user.password != password and user.password != hashlib.sha224(password).hexdigest():
       raise Exception("Invalid password.")
@@ -117,7 +115,6 @@ def main():
     sys.stderr.write("Error: " + str(sys.exc_info()[1]) + "\n")
     response.status_code = 400
     response.data = { "status": str(sys.exc_info()[1]) }
-    raise
 
   response.data = json.dumps(response.data)
   return response

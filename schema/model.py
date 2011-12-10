@@ -22,8 +22,6 @@ class User(Base):
     if (not 'user' in args) or args['user'] == None or args['user'] == "":
       raise Exception("Empty user!")
 
-    args['password'] = hashlib.sha224(args['password']).hexdigest() 
-
     Base.__init__(self, **args)
 
   def export(self):
