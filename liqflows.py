@@ -100,14 +100,17 @@ def main():
       radio.streams.add(Stream(radio=radio, url=q("stream_url"), format=q("stream_format"), msg=q("stream_msg")))
     
     elif g.cmd == "metadata":
+      title = q("m_title")
+      if title == None or title == "":
+        raise Exception("Empty title!")
+
       radio.artist = q("m_artist")
-      radio.title  = q("m_title")
+      radio.title  = title
 
     else:
-      return error (response, "Unknown command "+g.cmd+".")
+      raise Exception("Unknown command "+g.cmd+".")
 
     update_radio(radio)
-    g.session.commit()
     response.data = { "status": "OK!" }
     publish(g.cmd, radio.export()) 
 
@@ -116,6 +119,7 @@ def main():
     response.status_code = 400
     response.data = { "status": str(sys.exc_info()[1]) }
 
+  g.session.commit()
   response.data = json.dumps(response.data)
   return response
 

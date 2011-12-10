@@ -56,8 +56,9 @@ class Radio(Base):
 
     Base.__init__(self, **args)
 
+  # TODO: remove id when switching to tokens.
   def export(self):
-    data = { "name" : self.name, "token": self.token, "title" : self.title }
+    data = { "id" : self.id, "name" : self.name, "token": self.token, "title" : self.title }
     if self.website != None and self.website != "":
       data["website"] = self.website
     if self.description != None and self.description != "":
