@@ -28,8 +28,8 @@ session = Session()
 redis_url = urlparse(os.environ.get('REDISTOGO_URL','redis://localhost:6379'))
 redis = redis.Redis(host=redis_url.hostname, port=redis_url.port, password=redis_url.password)
 
-def publish(cmd, data):
-  msg = { 'cmd' : cmd, 'data': data }
+def publish(cmd, radio):
+  msg = { "cmd": cmd, "radio": radio }
   redis.publish("flows", json.dumps(msg))
 
 # Update radio
