@@ -30,7 +30,7 @@ class User(Base):
 class Radio(Base):
   __tablename__ = 'radios'
   id            = Column(Integer, primary_key=True)
-  user_id       = Column(Integer, ForeignKey(User.id))
+  user_id       = Column(Integer, ForeignKey(User.id), nullable=False)
   name          = Column(Text, NonEmptyConstraint('name'), unique=True, nullable=False)
   token         = Column(Token, NonEmptyConstraint('token'), unique=True, nullable=False)
   website       = Column(Text)
@@ -56,9 +56,8 @@ class Radio(Base):
 
     Base.__init__(self, **args)
 
-  # TODO: remove id when switching to tokens.
   def export(self):
-    data = { "id" : self.id, "name" : self.name, "token": self.token, "title" : self.title }
+    data = { "name" : self.name, "token": self.token, "title" : self.title }
     if self.website != None and self.website != "":
       data["website"] = self.website
     if self.description != None and self.description != "":

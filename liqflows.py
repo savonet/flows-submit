@@ -18,11 +18,19 @@ app = Flask(__name__)
 def q(p):
   return request.args.get(p, None)
 
-# Redis 
+
+db = create_engine(os.environ.get('DATABASE_URL','postgres://localhost:7778/flows'))
+db.echo = False # Enable to debug DB queries
+Session = sessionmaker(bind=db)
+session = Session()
+
+# Redis
+redis_url = urlparse(os.environ.get('REDISTOGO_URL','redis://localhost:6379'))
+redis = redis.Redis(host=redis_url.hostname, port=redis_url.port, password=redis_url.password)
 
 def publish(cmd, data):
   msg = { 'cmd' : cmd, 'data': data }
-  g.redis.publish("flows", json.dumps(msg))
+  redis.publish("flows", json.dumps(msg))
 
 # Update radio
 def update_radio(radio):
@@ -35,17 +43,6 @@ def update_radio(radio):
       radio.longitude = r['longitude']
 
   radio.last_seen = radio.user.last_seen = datetime.today()
-
-@app.before_request
-def before_request():
-  db = create_engine(os.environ.get('DATABASE_URL','postgres://localhost:7778/flows'))
-  db.echo = False # Enable to debug DB queries
-  Session = sessionmaker(bind=db)
-  g.session = Session()
-
-  # Open redis
-  redis_url = urlparse(os.environ.get('REDISTOGO_URL','redis://localhost:6379'))
-  g.redis = redis.Redis(host=redis_url.hostname, port=redis_url.port, password=redis_url.password)
 
 @app.route('/')
 def main():
@@ -66,19 +63,19 @@ def main():
     if username == None:
       raise Exception("No user given!")
 
-    user     = g.session.query(User).filter(User.user==username).first()
+    user     = session.query(User).filter(User.user==username).first()
     password = q("password")
-    radio    = g.session.query(Radio).filter(Radio.name==q("radio")).first()
+    radio    = session.query(Radio).filter(Radio.name==q("radio")).first()
     
     if radio == None:
       if g.cmd== "add radio": 
         if user == None:
           user  = User(user=username, password=hashlib.sha224(password).hexdigest())
-          g.session.add(user)
+          session.add(user)
 
         name = q("radio")
         radio = Radio(name=name, title=name, website=q("radio_website"), description=q("radio_description"), genre=q("radio_genre"), user=user)
-        g.session.add(radio)
+        session.add(radio)
 
       else: raise Exception("Radio does not exist!")
 
@@ -119,7 +116,7 @@ def main():
     response.status_code = 400
     response.data = { "status": str(sys.exc_info()[1]) }
 
-  g.session.commit()
+  session.commit()
   response.data = json.dumps(response.data)
   return response
 
