@@ -9,7 +9,7 @@ Base = declarative_base()
 class User(Base):
   __tablename__ = 'users'
   id            = Column(Integer, primary_key=True)
-  user          = Column(Text, NonEmptyConstraint('user'), unique=True, nullable=False)
+  username      = Column(Text, NonEmptyConstraint('username'), unique=True, nullable=False)
   password      = Column(Text, NonEmptyConstraint('password'), nullable=False)
   email         = Column(Text)
   radios        = relationship('Radio', collection_class=set, backref=backref('user'))

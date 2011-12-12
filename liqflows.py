@@ -63,14 +63,14 @@ def main():
     if username == None:
       raise Exception("No user given!")
 
-    user     = session.query(User).filter(User.user==username).first()
+    user     = session.query(User).filter(User.username==username).first()
     password = q("password")
     radio    = session.query(Radio).filter(Radio.name==q("radio")).first()
     
     if radio == None:
       if g.cmd== "add radio": 
         if user == None:
-          user  = User(user=username, password=hashlib.sha224(password).hexdigest())
+          user  = User(username=username, password=hashlib.sha224(password).hexdigest())
           session.add(user)
 
         name = q("radio")
