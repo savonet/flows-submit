@@ -18,7 +18,6 @@ app = Flask(__name__)
 def q(p):
   return request.args.get(p, None)
 
-
 db = create_engine(os.environ.get('DATABASE_URL','postgres://localhost:7778/flows'))
 db.echo = False # Enable to debug DB queries
 Session = sessionmaker(bind=db)
@@ -79,7 +78,21 @@ def main():
 
       else: raise Exception("Radio does not exist!")
 
-    if user.password != password and user.password != hashlib.sha224(password).hexdigest():
+    # Special case: if radio user is "default", allow to change it
+    # to the newly submitted user.
+    if g.cmd == "add radio":
+      if radio.user.username == "default":
+        if user == None:
+          user = User(username=username, password=hashlib.sha224(password).hexdigest())
+          session.add(user)
+        
+        if user.username != "default":
+          radio.user = user
+
+    if user == None:
+      raise Exception("No such user!")
+
+    if user.password != hashlib.sha224(password).hexdigest():
       raise Exception("Invalid password.")
 
     if radio.user != user:

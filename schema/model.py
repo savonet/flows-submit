@@ -19,8 +19,8 @@ class User(Base):
   def __init__(self, **args):
     if (not 'password' in args) or args['password'] == None or args['password'] == "":
       raise Exception("Empty password!")
-    if (not 'user' in args) or args['user'] == None or args['user'] == "":
-      raise Exception("Empty user!")
+    if (not 'username' in args) or args['username'] == None or args['username'] == "":
+      raise Exception("Empty username!")
 
     Base.__init__(self, **args)
 
