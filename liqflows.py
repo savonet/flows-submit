@@ -18,7 +18,7 @@ app = Flask(__name__)
 def q(p):
   return request.args.get(p, None)
 
-db = create_engine(os.environ.get('DATABASE_URL','postgres://localhost:7778/flows'))
+db = create_engine(os.environ.get('DATABASE_URL','postgres://localhost/flows'))
 db.echo = False # Enable to debug DB queries
 Session = sessionmaker(bind=db)
 session = Session()
