@@ -84,6 +84,7 @@ class Stream(Base):
   format        = Column(Text, NonEmptyConstraint('format'), nullable=False)
   url           = Column(Text, NonEmptyConstraint('url'), nullable=False)
   msg           = Column(Text)
+  listeners     = relationship('Listener', collection_class=set, backref=backref('stream'), cascade='all, delete-orphan')
 
   def __init__(self, **args):
     if (not 'radio' in args) or args['radio'] == None:
@@ -96,9 +97,29 @@ class Stream(Base):
     Base.__init__(self, **args)
 
   # Do not export "radio", "streams" is already exported there..
+  # Also do not export listeners..
   def export(self):
     data = { "format" : self.format, "url" : self.url }
     if self.msg != None and self.msg != "":
       data["msg"] = self.msg
 
     return data
+
+class Listener(Base):
+  __tablename__ = 'listeners'
+  id            = Column(Integer, primary_key=True)
+  stream_id     = Column(Integer, ForeignKey(Stream.id))
+  longitude     = Column(Float)
+  latitude      = Column(Float)
+  ip            = Column(Text, nullable=False)
+  last_seen     = Column(DateTime, nullable=False)
+
+  def __init__(self, **args):
+    if (not 'stream' in args) or args['stream'] == None:
+      raise Exception("No stream given!")
+    if (not 'ip' in args) or args['ip'] == None or args['ip'] == "":
+      raise Exception("No ip given!")
+    if (not 'last_seen' in args) or args['last_seen'] == None or args['last_seen'] == "":
+      args['last_seen'] = datetime.today()
+
+    Base.__init__(self, **args)

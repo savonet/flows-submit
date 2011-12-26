@@ -10,8 +10,15 @@ from sqlalchemy.orm import sessionmaker
 from urlparse import urlparse
 from datetime import datetime,timedelta
 from flask import Flask,request,g
+# load the middleware from werkzeug
+# This middleware can be applied to add HTTP proxy support to an application
+# that was not designed with HTTP proxies in mind.
+# It sets `REMOTE_ADDR`, `HTTP_POST` from `X-Forwarded` headers.
+from werkzeug.contrib.fixers import ProxyFix
 from schema.model import User, Radio, Stream
 app = Flask(__name__)
+
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 # Parse query string
 
