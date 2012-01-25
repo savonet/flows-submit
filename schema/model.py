@@ -42,6 +42,7 @@ class Radio(Base):
   artist        = Column(Text)
   title         = Column(Text, NonEmptyConstraint('title'), nullable=False)
   streams       = relationship('Stream', collection_class=set, backref=backref('radio'), cascade='all, delete-orphan')
+  twitters      = relationship('Twitter', collection_class=set, backref=backref('radio'), cascade='all, delete-orphan')
 
   def __init__(self, **args):
     if (not 'name' in args) or args['name'] == None or args['name'] == "":
@@ -76,6 +77,30 @@ class Radio(Base):
       data["streams"].append(stream.export())
 
     return data
+
+class Twitter(Base):
+  __tablename__ = 'twitters' 
+  id            = Column(Integer, primary_key=True)
+  radio_id      = Column(Integer, ForeignKey(Radio.id))
+  name          = Column(Text, NonEmptyConstraint('name'), nullable=False)
+  token         = Column(Text, NonEmptyConstraint('token'), nullable=False)
+  secret        = Column(Text, NonEmptyConstraint('secret'), nullable=False)
+
+  def __init__(self, **args):
+    if (not 'radio' in args) or args['radio'] == None:
+      raise Exception("No radio for that twitter!")
+    if (not 'name' in args) or args['name'] == None or args['name'] == "":
+      raise Exception("Empty name!")
+    if (not 'token' in args) or args['token'] == None or args['token'] == "":
+      raise Exception("Empty token!")
+    if (not 'secret' in args) or args['secret'] == None or args['secret'] == "":
+      raise Exception("Empty token!")
+
+    Base.__init__(self, **args)
+
+  # Do not export "radio", "twitters" is already exported there..
+  def export(self):
+    return { "name" : self.name, "token" : self.url, "secret" : self.secret }
 
 class Stream(Base):
   __tablename__ = 'streams' 
