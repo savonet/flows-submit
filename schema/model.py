@@ -27,6 +27,11 @@ class User(Base):
   def export(self):
     return { "user"  : self.user, "email" : self.email }
 
+twitters_radios = Table('twitters_radios', Base.metadata,
+    Column('radio_id', Integer, ForeignKey('radios.id')),
+    Column('twitter_id', Integer, ForeignKey('twitters.id'))
+)
+
 class Radio(Base):
   __tablename__ = 'radios'
   id            = Column(Integer, primary_key=True)
@@ -42,7 +47,7 @@ class Radio(Base):
   artist        = Column(Text)
   title         = Column(Text, NonEmptyConstraint('title'), nullable=False)
   streams       = relationship('Stream', collection_class=set, backref=backref('radio'), cascade='all, delete-orphan')
-  twitters      = relationship('Twitter', collection_class=set, backref=backref('radio'), cascade='all, delete-orphan')
+  twitters      = relationship('Twitter', collection_class=set, backref=backref('radios'), secondary=twitters_radios)
 
   def __init__(self, **args):
     if (not 'name' in args) or args['name'] == None or args['name'] == "":
@@ -81,7 +86,6 @@ class Radio(Base):
 class Twitter(Base):
   __tablename__ = 'twitters' 
   id            = Column(Integer, primary_key=True)
-  radio_id      = Column(Integer, ForeignKey(Radio.id))
   name          = Column(Text, NonEmptyConstraint('name'), nullable=False)
   token         = Column(Text, NonEmptyConstraint('token'), nullable=False)
   secret        = Column(Text, NonEmptyConstraint('secret'), nullable=False)
