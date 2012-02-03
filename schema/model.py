@@ -76,6 +76,8 @@ class Radio(Base):
       data["latitude"] = self.website
     if self.artist != None and self.artist != "":
       data["artist"] = self.artist
+    if self.last_seen != None and self.last_seen != "":
+      data["last_seen"] = self.last_seen.isoformat()
 
     data["streams"] = []
     for stream in self.streams:
