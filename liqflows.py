@@ -42,11 +42,12 @@ def publish(cmd, radio):
 def update_radio(radio):
   if g.ip != None:
     radio.user.last_ip = g.ip
-    gi = pygeoip.GeoIP("geoip/GeoIPCity.dat")
-    r = gi.record_by_addr(g.ip)
-    if r != None:
-      radio.latitude  = r['latitude']
-      radio.longitude = r['longitude']
+    if radio.latitude == None or radio.longitude == None:
+      gi = pygeoip.GeoIP("geoip/GeoIPCity.dat")
+      r = gi.record_by_addr(g.ip)
+      if r != None:
+        radio.latitude  = r['latitude']
+        radio.longitude = r['longitude']
 
   radio.last_seen = radio.user.last_seen = datetime.today()
 
