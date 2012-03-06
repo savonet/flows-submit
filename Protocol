@@ -1,4 +1,15 @@
-A quick list of the difference requests.
+Flows protocol
+==============
+
+All requests are HTTP GET requests.
+
+Submission server base url is located at http://savonet.sourceforge.net/flows_server:
+
+% curl http://savonet.sourceforge.net/flows_server
+  http://savonet-flows.herokuapp.com/
+
+Example request:
+  http://savonet-flows.herokuapp.com/&cmd=metadata&user=foo&password=bar&radio=Awesome+Radio&m_title=Some+Title&m_artist=Some+Artist
 
 * Parameters common to each request:
   + cmd (string): Command name
@@ -6,21 +17,17 @@ A quick list of the difference requests.
   + password (string): for now passowrd are in clear.
   + radio (string): for now using the radio name. Later, we think 
                     of a token given for all further requests..
+
 Per-command parameters:
-* add radio:
+* cmd=add+radio:
   + radio_website (string)
   + radio_description (string)
   + radio_genre (string
-* ping radio: none
-* clear streams: none
-* add stream: 
+* cmd=ping+radio: none
+* cmd=clear+streams: none
+* cmd=add+stream: 
   + stream_url (string)
-  + stream_rate (int) // TODO (toots): I think this should be a free string 
-                      // like stream_params, which contains quality or bitrate, 
-                      // but also sample rate, channels etc..)
   + stream_format (string)
-* metadata:
+* cmd=metadata:
   + m_artist (string)
   + m_title (string)
-  // Note (toots): I think that album, genre etc.. are not so important
-  // at least for now..
